@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<Devices>
+	<Device type="custom" id="variable">
+		<Name>Variable Device</Name>
+		<ConfigUI>
+			<Field type="list" id="vars">
+				<Label>Variables:</Label>
+				<List class="indigo.variables"/>
+			</Field>
+			<Field id="lstateToDisplay" type="label">
+				<Label>"State to display" allows you to choose which of the variables to use as the UI device state. </Label>
+			</Field>
+			<Field type="menu" id="stateToDisplay">
+				<Label>Variables:</Label>
+				<List class="indigo.variables"/>
+			</Field>
+		</ConfigUI>
+		<States>
+			<State id="displayState">
+				<ValueType>String</ValueType>
+				<TriggerLabel>displayState</TriggerLabel>
+				<ControlPageLabel>displayState</ControlPageLabel>
+			</State>
+		</States>
+		<UiDisplayStateId>displayState</UiDisplayStateId>
+	</Device>
+</Devices>
