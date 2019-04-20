@@ -66,11 +66,11 @@ class Plugin(indigo.PluginBase):
 			self.devFromVar[varID] = int(devID)
 			self.strstates.append(str(varID))
 			dev.stateListOrDisplayStateIdChanged()
-			dev.updateStateOnServer(str(varName),varValue)
+			dev.updateStateOnServer(str(varName), u"%s" % varValue)
 			state = dev.ownerProps.get("stateToDisplay","")
 			if (int(varID) == int(state)):
 				self.debugLog("Updating displayState: %s" % varValue)
-				dev.updateStateOnServer("displayState",str(varValue))
+				dev.updateStateOnServer("displayState", u"%s" % varValue)
 		return True
 	
 	def deviceStopComm(self, dev):
@@ -99,13 +99,13 @@ class Plugin(indigo.PluginBase):
 			self.debugLog("Update received: %s: %s" % (newVar.name, newVar.value))
 			#self.debugLog("Variable is monitored by %s" % indigo.devices[devID].name)
 			dev = indigo.devices[devID]
-			dev.updateStateOnServer(str(newVar.name), str(newVar.value))
+			dev.updateStateOnServer(str(newVar.name), u"%s" % varValue)
 			state = dev.ownerProps.get("stateToDisplay","")
 			#self.debugLog("#%s#" % int(state))
 			#self.debugLog("#%s#" % int(varID))
 			if (int(varID) == int(state)):
 				self.debugLog("Updating displayState: %s" % varValue)
-				dev.updateStateOnServer("displayState",str(varValue))
+				dev.updateStateOnServer("displayState", u"%s" % varValue)
 			#self.debugLog(newVar)
 		#else:
 			#self.debugLog("Update ignored: %s" % newVar.name)
