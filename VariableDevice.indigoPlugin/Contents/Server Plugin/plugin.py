@@ -41,6 +41,18 @@ class Plugin(indigo.PluginBase):
 		self.debugLog(u"startup called")
 		indigo.variables.subscribeToChanges()
 
+	def closedPrefsConfigUi(self, valuesDict, userCancelled):
+		# Since the dialog closed we want to set the debug flag - if you don't directly use
+		# a plugin's properties (and for debugLog we don't) you'll want to translate it to
+		# the appropriate stuff here.
+		if not userCancelled:
+			self.debug = valuesDict.get("showDebugInfo", False)
+			if self.debug:
+				indigo.server.log("Debug logging enabled")
+			else:
+				indigo.server.log("Debug logging disabled")
+
+
 	def getDeviceStateList(self, dev): #Override state list
 		stateList = indigo.PluginBase.getDeviceStateList(self, dev)      
 		if stateList is not None:
@@ -56,7 +68,7 @@ class Plugin(indigo.PluginBase):
 	def deviceStartComm(self, dev):
 		#self.debugLog(dev)
 		devID = dev.id
-		varsList = indigo.devices[dev.id].ownerProps['vars']
+		varsList = dev.ownerProps['vars']
 		for var in varsList:
 			varID = int(var)
 			varName = indigo.variables[varID].name
@@ -68,14 +80,56 @@ class Plugin(indigo.PluginBase):
 			dev.stateListOrDisplayStateIdChanged()
 			dev.updateStateOnServer(str(varName), u"%s" % varValue)
 			state = dev.ownerProps.get("stateToDisplay","")
+			icon = dev.ownerProps.get("iconType","")
 			if (int(varID) == int(state)):
 				self.debugLog("Updating displayState: %s" % varValue)
-				dev.updateStateOnServer("displayState", u"%s" % varValue)
+				if (int(varID) == int(state)):
+					self.debugLog("Updating displayState: %s" % varValue)
+					#self.debugLog(str(icon))
+					#dev.updateStateOnServer("displayState", u"%s" % varValue)
+					if (icon == 'Generic'):
+						dev.updateStateOnServer("displayState", u"%s" % varValue)
+						dev.updateStateImageOnServer(indigo.kStateImageSel.Auto)
+					elif (icon == 'Power'):
+						dev.updateStateOnServer("displayState", u"%s" % varValue)
+						if ((varValue == 'on') or (varValue == 'true') or (varValue == 'yes')):
+							dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOn)
+						else:
+							dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOff)
+					elif (icon == 'Motion'):
+						dev.updateStateOnServer("displayState", u"%s" % varValue)
+						if ((varValue == 'on') or (varValue == 'true') or (varValue == 'yes')):
+							dev.updateStateImageOnServer(indigo.kStateImageSel.MotionSensorTripped)
+						else:
+							dev.updateStateImageOnServer(indigo.kStateImageSel.MotionSensor)
+					elif (icon == 'TempF'):
+						dev.updateStateOnServer("displayState", str(varValue), uiValue=str(varValue) + u" 'F")
+						dev.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
+					elif (icon == 'TempC'):
+						dev.updateStateOnServer("displayState", str(varValue), uiValue=str(varValue) + u" 'C")
+						dev.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
+					elif (icon == 'Humidity'):
+						dev.updateStateOnServer("displayState", u"%s" % varValue, uiValue=u"%s %" % varValue)
+						dev.updateStateImageOnServer(indigo.kStateImageSel.HumiditySensor)
+					elif (icon == 'LumLux'):
+						dev.updateStateOnServer("displayState", u"%s" % varValue, uiValue=u"%s lux" % varValue)
+						dev.updateStateImageOnServer(indigo.kStateImageSel.LightSensor)
+					elif (icon == 'LumPC'):
+						dev.updateStateOnServer("displayState", u"%s" % varValue, uiValue=u"%s %" % varValue)
+						dev.updateStateImageOnServer(indigo.kStateImageSel.LightSensor)
+		if (state) == "":
+			dev.updateStateOnServer("displayState", "")
+			dev.updateStateImageOnServer(indigo.kStateImageSel.None)
+		elif (str(state) not in varsList):
+			#dev.updateStateOnServer("displayState", "")
+			dev.setErrorStateOnServer('Select state')
+			dev.updateStateImageOnServer(indigo.kStateImageSel.Error)
+		#self.debugLog(dev)		
 		return True
 	
 	def deviceStopComm(self, dev):
 		devID = dev.id
-		varsList = indigo.devices[dev.id].ownerProps['vars']
+		varsList = dev.ownerProps['vars']
 		for var in varsList:
 			varID = int(var)
 			indigo.server.log("Stop monitoring variable: %s" % indigo.variables[varID].name)
@@ -101,12 +155,42 @@ class Plugin(indigo.PluginBase):
 			dev = indigo.devices[devID]
 			dev.updateStateOnServer(str(newVar.name), u"%s" % varValue)
 			state = dev.ownerProps.get("stateToDisplay","")
-			#self.debugLog("#%s#" % int(state))
-			#self.debugLog("#%s#" % int(varID))
+			icon = dev.ownerProps.get("iconType","")
 			if (int(varID) == int(state)):
 				self.debugLog("Updating displayState: %s" % varValue)
-				dev.updateStateOnServer("displayState", u"%s" % varValue)
-			#self.debugLog(newVar)
+				#self.debugLog(str(icon))
+				#dev.updateStateOnServer("displayState", u"%s" % varValue)
+				if (icon == 'Generic'):
+					dev.updateStateOnServer("displayState", u"%s" % varValue)
+					dev.updateStateImageOnServer(indigo.kStateImageSel.Auto)
+				elif (icon == 'Power'):
+					dev.updateStateOnServer("displayState", u"%s" % varValue)
+					if ((varValue == 'on') or (varValue == 'true') or (varValue == 'yes')):
+						dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOn)
+					else:
+						dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOff)
+				elif (icon == 'Motion'):
+					dev.updateStateOnServer("displayState", u"%s" % varValue)
+					if ((varValue == 'on') or (varValue == 'true') or (varValue == 'yes')):
+						dev.updateStateImageOnServer(indigo.kStateImageSel.MotionSensorTripped)
+					else:
+						dev.updateStateImageOnServer(indigo.kStateImageSel.MotionSensor)
+				elif (icon == 'TempF'):
+					dev.updateStateOnServer("displayState", str(varValue), uiValue=str(varValue) + u" 'F")
+					dev.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
+				elif (icon == 'TempC'):
+					dev.updateStateOnServer("displayState", str(varValue), uiValue=str(varValue) + u" 'C")
+					dev.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
+				elif (icon == 'Humidity'):
+					dev.updateStateOnServer("displayState", u"%s" % varValue, uiValue=u"%s %" % varValue)
+					dev.updateStateImageOnServer(indigo.kStateImageSel.HumiditySensor)
+				elif (icon == 'LumLux'):
+					dev.updateStateOnServer("displayState", u"%s" % varValue, uiValue=u"%s lux" % varValue)
+					dev.updateStateImageOnServer(indigo.kStateImageSel.LightSensor)
+				elif (icon == 'LumPC'):
+					dev.updateStateOnServer("displayState", u"%s" % varValue, uiValue=u"%s %" % varValue)
+					dev.updateStateImageOnServer(indigo.kStateImageSel.LightSensor)
+
 		#else:
 			#self.debugLog("Update ignored: %s" % newVar.name)
 		

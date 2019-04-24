@@ -8,11 +8,27 @@
 				<List class="indigo.variables"/>
 			</Field>
 			<Field id="lstateToDisplay" type="label">
-				<Label>"State to display" allows you to choose which of the variables to use as the UI device state. </Label>
+				<Label>Choose which of the variables to use as the UI device state:</Label>
 			</Field>
 			<Field type="menu" id="stateToDisplay">
-				<Label>Variables:</Label>
+				<Label>State to display:</Label>
 				<List class="indigo.variables"/>
+			</Field>
+			<Field id="liconType" type="label">
+				<Label>Choose the icon and formatting displayed for the UI device state:</Label>
+			</Field>
+			<Field type="menu" id="iconType" defaultValue="Generic">
+				<Label>Display icon as:</Label>
+					<List>
+						<Option value="Generic">Generic</Option>
+						<Option value="Power">Power On/Off</Option>
+						<Option value="Motion">Motion Sensor</Option>
+						<Option value="TempF">Temperature (F)</Option>
+						<Option value="TempC">Temperature (C)</Option>
+						<Option value="Humidity">Humidity</Option>
+						<Option value="LumLux">Luminance (lux)</Option>
+						<Option value="LumPC">Luminance (%)</Option>
+					</List>
 			</Field>
 		</ConfigUI>
 		<States>
