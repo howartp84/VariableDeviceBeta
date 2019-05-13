@@ -3,7 +3,7 @@
 	<Device type="custom" id="variable">
 		<Name>Variable Device</Name>
 		<ConfigUI>
-			<Field type="list" id="vars">
+			<Field type="list" id="vars" rows="30">
 				<Label>Variables:</Label>
 				<List class="indigo.variables"/>
 			</Field>
