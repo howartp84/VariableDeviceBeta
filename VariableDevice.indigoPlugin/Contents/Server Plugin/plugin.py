@@ -9,7 +9,7 @@
 import indigo
 
 ## TODO
-# 1. 
+# 1.
 
 ################################################################################
 class Plugin(indigo.PluginBase):
@@ -18,24 +18,24 @@ class Plugin(indigo.PluginBase):
 		indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
 		self.debug = pluginPrefs.get("showDebugInfo", True)
 		#self.debug = True
-		
+
 		self.states = {}
-		
+
 		self.strstates = list()
-		
+
 		self.resetStates = False
-		
+
 		self.watchIDs = list()
 		self.devFromVar = dict()
-		
+
 		self.uiValue = dict()
 		self.uiIcon = dict()
-		
+
 	########################################
 	def startup(self):
 		self.debugLog(u"startup called")
 		indigo.variables.subscribeToChanges()
-		
+
 		self.uiValue["Generic"] = u""
 		self.uiValue["Power"] = u""
 		self.uiValue["PowerOn"] = u""
@@ -46,7 +46,7 @@ class Plugin(indigo.PluginBase):
 		self.uiValue["Humidity"] = u" %"
 		self.uiValue["LumLux"] = u" lux"
 		self.uiValue["LumPC"] = u" %"
-		
+
 		self.uiIcon["Generic"] = indigo.kStateImageSel.Auto
 		self.uiIcon["Power"] = indigo.kStateImageSel.PowerOff
 		self.uiIcon["PowerOn"] = indigo.kStateImageSel.PowerOn
@@ -58,8 +58,8 @@ class Plugin(indigo.PluginBase):
 		self.uiIcon["LumLux"] = indigo.kStateImageSel.LightSensor
 		self.uiIcon["LumPC"] = indigo.kStateImageSel.LightSensor
 
-		
-		
+
+
 
 	def closedPrefsConfigUi(self, valuesDict, userCancelled):
 		# Since the dialog closed we want to set the debug flag - if you don't directly use
@@ -74,7 +74,7 @@ class Plugin(indigo.PluginBase):
 
 
 	def getDeviceStateList(self, dev): #Override state list
-		stateList = indigo.PluginBase.getDeviceStateList(self, dev)      
+		stateList = indigo.PluginBase.getDeviceStateList(self, dev)
 		if stateList is not None:
 			for var in dev.ownerProps['vars']:
 				varName = indigo.variables[int(var)].name
@@ -95,6 +95,8 @@ class Plugin(indigo.PluginBase):
 			varName = indigo.variables[varID].name
 			varValue = indigo.variables[varID].value
 			state = dev.ownerProps.get("stateToDisplay","")
+			if (state == ""):
+				state = 0
 			icon = dev.ownerProps.get("iconType","")
 			indigo.server.log(u"{}{}".format("Monitoring variable: ",varName))
 			self.watchIDs.append(varID)
@@ -115,9 +117,9 @@ class Plugin(indigo.PluginBase):
 			#dev.updateStateOnServer("displayState", "")
 			dev.setErrorStateOnServer('Select state')
 			dev.updateStateImageOnServer(indigo.kStateImageSel.Error)
-		#self.debugLog(dev)		
+		#self.debugLog(dev)
 		return True
-	
+
 	def deviceStopComm(self, dev):
 		devID = dev.id
 		varsList = dev.ownerProps['vars']
@@ -133,8 +135,8 @@ class Plugin(indigo.PluginBase):
 			self.resetStates = True
 			dev.stateListOrDisplayStateIdChanged()
 		return True
-		
-	def variableUpdated (self, origVar, newVar): 
+
+	def variableUpdated (self, origVar, newVar):
 		if (newVar.id in self.watchIDs):
 			varID = newVar.id
 			varName = newVar.name
@@ -146,6 +148,8 @@ class Plugin(indigo.PluginBase):
 			dev = indigo.devices[devID]
 			dev.updateStateOnServer(str(newVar.name), varValue)
 			state = dev.ownerProps.get("stateToDisplay","")
+			if (state == ""):
+				state = 0
 			icon = dev.ownerProps.get("iconType","")
 			if (int(varID) == int(state)):
 				self.debugLog("Updating displayState: %s" % varValue)
